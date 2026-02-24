@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\FILEReturn">
+      <UniqueIdentifier>{948cd56a-3148-4303-88ad-2c2e3df77b91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\CWRExcel">
+      <UniqueIdentifier>{ee849a47-fb11-4d26-a9ef-45eef0f1e48d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\ChildClass">
+      <UniqueIdentifier>{6f715d4e-e9d0-4520-8f31-6d6a19ed710f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Generator">
+      <UniqueIdentifier>{f8448055-4998-4f08-8e31-489a815a1993}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CWRExcel.cpp">
+      <Filter>소스 파일\CWRExcel</Filter>
+    </ClCompile>
+    <ClCompile Include="CWRStruct.cpp">
+      <Filter>소스 파일\ChildClass</Filter>
+    </ClCompile>
+    <ClCompile Include="CMSVCRPC.cpp">
+      <Filter>소스 파일\Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="CCShapRPC.cpp">
+      <Filter>소스 파일\Generator</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Def.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CWRExcel.h">
+      <Filter>소스 파일\CWRExcel</Filter>
+    </ClInclude>
+    <ClInclude Include="CWRStruct.h">
+      <Filter>소스 파일\ChildClass</Filter>
+    </ClInclude>
+    <ClInclude Include="CMSVCRPC.h">
+      <Filter>소스 파일\Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="CCshapRPC.h">
+      <Filter>소스 파일\Generator</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
