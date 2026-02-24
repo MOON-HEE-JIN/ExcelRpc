@@ -1,4 +1,4 @@
-#include "CWRStruct.h"
+ï»¿#include "CWRStruct.h"
 
 CWRRPCManager g_CWRRPCManager("RPC_GAME_EXCEL.xlsx");
 
@@ -19,11 +19,11 @@ int CWRRPCManager::READ_STRUCT()
     xlsxioreadersheet sheet = xlsxioread_sheet_open(xlsxioread, NULL, XLSXIOREAD_SKIP_EMPTY_ROWS);
     while (xlsxioread_sheet_next_row(sheet))
     {
-        int index = 0;              // ¿­ À» ÀĞ¾î¿Ã¶§ À§Ä¡
-        int variable_index = 0;     // Å¸ÀÔ or ÀÌ¸§
-        bool bComment = false;      // ÁÖ¼® ¿©ºÎ
-        bool bNull = false;         // ±¸Á¶Ã¼ °¡ ¾øÀ»¶§
-        char* enumType = nullptr;   // ±¸Á¶Ã¼ enum °ª
+        int index = 0;              // ì—´ ì„ ì½ì–´ì˜¬ë•Œ ìœ„ì¹˜
+        int variable_index = 0;     // íƒ€ì… or ì´ë¦„
+        bool bComment = false;      // ì£¼ì„ ì—¬ë¶€
+        bool bNull = false;         // êµ¬ì¡°ì²´ ê°€ ì—†ì„ë•Œ
+        char* enumType = nullptr;   // êµ¬ì¡°ì²´ enum ê°’
 
         std::string struct_name;
         std::string struct_enum;
@@ -114,7 +114,7 @@ int CWRRPCManager::READ_STRUCT()
                 }
                 else
                 {
-                    // º¯¼ö Å¸ÀÔ ÀĞÀ» Â÷·Ê
+                    // ë³€ìˆ˜ íƒ€ì… ì½ì„ ì°¨ë¡€
                     if (variable_index == 0)
                     {
                         node.Name = value;
@@ -127,10 +127,10 @@ int CWRRPCManager::READ_STRUCT()
 
                         variable_index++;
                     }
-                    // º¯¼ö ÀÌ¸§ ÀĞÀ» Â÷·Ê
+                    // ë³€ìˆ˜ ì´ë¦„ ì½ì„ ì°¨ë¡€
                     else
                     {
-                        // º¯¼ö°¡ ¹è¿­ÀÎÁö È®ÀÎ
+                        // ë³€ìˆ˜ê°€ ë°°ì—´ì¸ì§€ í™•ì¸
                         char* array_ch = strstr(value, "[");
 
                         node.ArraySize = 0;
@@ -399,4 +399,28 @@ void CWRRPCManager::ERROR_MESSAGE_CHECK(int error)
     LocalFree(messagebuffer);
     if (error == 0x000bd000)
         exit(1);
+}
+
+std::string CWRRPCManager::GetSTC_String(std::string str)
+{
+    STRSTR_ITER iter = m_map_STC_ETS.begin();
+    STRSTR_ITER eiter = m_map_STC_ETS.end();
+    for (iter; iter != eiter; iter++)
+    {
+        if (str == iter->second)
+            return iter->first;
+    }
+    return "null";
+}
+
+std::string CWRRPCManager::GetCTS_String(std::string str)
+{
+    STRSTR_ITER iter = m_map_CTS_ETS.begin();
+    STRSTR_ITER eiter = m_map_CTS_ETS.end();
+    for (iter; iter != eiter; iter++)
+    {
+        if (str == iter->second)
+            return iter->first;
+    }
+    return "null";
 }

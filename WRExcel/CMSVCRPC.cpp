@@ -1,4 +1,4 @@
-#include "CMSVCRPC.h"
+﻿#include "CMSVCRPC.h"
 
 #include "CWRStruct.h"
 
@@ -250,16 +250,20 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
         }
 
         fprintf(fp, "#include \"%s.h\" \n", filename);
+        fprintf(fp, "#include \"PacketEnumDef.h\"");
         fprintf(fp, "#include <memory.h>\n\n");
 
         const std::string D_funcname = "int Serialization (char* buffer, ";
         STRUCTMAP_ITER map_iter = g_CWRRPCManager.m_map_Struct.begin();
+        std::list<Node> header = g_CWRRPCManager.m_map_Struct["st_Header"];
         for (map_iter; map_iter != g_CWRRPCManager.m_map_Struct.end(); map_iter++)
         {
             STRUCTLIST_ITER list_iter = map_iter->second.begin();
 
             std::string funcname;
             std::string funccontents;
+            std::string enumname = "null";
+
             for (list_iter; list_iter != map_iter->second.end(); list_iter++)
             {
                 Node_Type type = list_iter->Type;
@@ -269,8 +273,23 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
                 switch (type)
                 {
                 case Node_Type::Name:
+                {
                     funcname = D_funcname + name + "& value)\n{\n";
-                    funccontents += "\tint iSize = 0;\n";
+                    int strfindret = name.find("CTS");
+                    if (strfindret != std::string::npos)
+                        enumname = g_CWRRPCManager.GetCTS_String(name);
+                    else
+                        enumname = g_CWRRPCManager.GetSTC_String(name);
+
+                    std::string strsize = "0";
+                    if (enumname != "null")
+                    {
+                        funccontents += "\tint hSize = 0;\n";
+                        funccontents += "\tst_Header header;\n";   
+                        strsize = "sizeof(st_Header)";
+                    }
+                    funccontents += "\tint iSize = "+ strsize +";\n";
+                }
                     break;
                 case Node_Type::Variable:
                     if (list_iter->Name == "net_string")
@@ -296,13 +315,20 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
                     break;
                 case Node_Type::StructArray:
                     funccontents += "\tfor(int i = 0; i < " + std::to_string(arraysize) + "; ++i)\n";
-                    funccontents += "{\n";
+                    funccontents += "\t{\n";
                     funccontents += "\t\tiSize += Serialization(buffer + iSize, value." + vatablename + "[i]);\n";
-                    funccontents += "}\n";
+                    funccontents += "\t}\n";
                     break;
                 default:
                     break;
                 }
+            }
+
+            if (enumname != "null")
+            {
+                funccontents += "\theader.type = " + enumname + ";\n";
+                funccontents += "\theader.size = iSize - sizeof(st_Header);\n";
+                funccontents += "\tSerialization(buffer, header);\n";
             }
 
             fprintf(fp, funcname.c_str());
