@@ -250,7 +250,7 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
         }
 
         fprintf(fp, "#include \"%s.h\" \n", filename);
-        fprintf(fp, "#include \"PacketEnumDef.h\"");
+        fprintf(fp, "#include \"PacketEnumDef.h\"\n");
         fprintf(fp, "#include <memory.h>\n\n");
 
         const std::string D_funcname = "int Serialization (char* buffer, ";
@@ -326,7 +326,7 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
 
             if (enumname != "null")
             {
-                funccontents += "\theader.type = " + enumname + ";\n";
+                funccontents += "\n\theader.type = " + enumname + ";\n";
                 funccontents += "\theader.size = iSize - sizeof(st_Header);\n";
                 funccontents += "\tSerialization(buffer, header);\n";
             }
