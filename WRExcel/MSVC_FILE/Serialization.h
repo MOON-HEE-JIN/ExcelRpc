@@ -11,6 +11,7 @@ int Serialization(char* buffer, st_Info3& _value);
 int Serialization(char* buffer, st_STC_ChangePid& _value);
 int Serialization(char* buffer, st_STC_LoopBack& _value);
 int Serialization(char* buffer, st_Vector& _value);
+int Serialization(char* buffer, st_Vector3F& _value);
 
 
 
@@ -23,3 +24,4 @@ int UnSerialization(char* buffer, st_Info3& _value);
 int UnSerialization(char* buffer, st_STC_ChangePid& _value);
 int UnSerialization(char* buffer, st_STC_LoopBack& _value);
 int UnSerialization(char* buffer, st_Vector& _value);
+int UnSerialization(char* buffer, st_Vector3F& _value);

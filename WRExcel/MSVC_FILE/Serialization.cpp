@@ -75,8 +75,10 @@ int Serialization (char* buffer, st_Info3& value)
 	}
 	memcpy(buffer + iSize, &value.Loop2, sizeof(value.Loop2));
 	iSize += sizeof(value.Loop2);
-	memcpy(buffer + iSize, &value.ID,sizeof(value.ID[0]) * value.Loop2);
-	iSize += sizeof(value.ID[0]) *value.Loop2;
+	for(int i = 0; i < value.Loop2; ++i)
+	{
+		iSize += Serialization(buffer + iSize, value.ID[i]);
+	}
 	return iSize;
 }
 
@@ -119,6 +121,18 @@ int Serialization (char* buffer, st_Vector& value)
 	iSize += sizeof(value.X);
 	memcpy(buffer + iSize, &value.Y, sizeof(value.Y));
 	iSize += sizeof(value.Y);
+	return iSize;
+}
+
+int Serialization (char* buffer, st_Vector3F& value)
+{
+	int iSize = 0;
+	memcpy(buffer + iSize, &value.X, sizeof(value.X));
+	iSize += sizeof(value.X);
+	memcpy(buffer + iSize, &value.Y, sizeof(value.Y));
+	iSize += sizeof(value.Y);
+	memcpy(buffer + iSize, &value.Z, sizeof(value.Z));
+	iSize += sizeof(value.Z);
 	return iSize;
 }
 
@@ -183,8 +197,10 @@ int UnSerialization (char* buffer, st_Info3& value)
 	}
 	memcpy(&value.Loop2, buffer + iSize, sizeof(value.Loop2));
 	iSize += sizeof(value.Loop2);
-	memcpy(&value.ID, buffer + iSize,sizeof(value.ID[0]) * value.Loop2);
-	iSize += sizeof(value.ID[0]) * value.Loop2;
+	for(int i = 0; i < value.Loop2; ++i)
+	{
+		iSize += UnSerialization(buffer + iSize, value.ID[i]);
+	}
 	return iSize;
 }
 
@@ -215,6 +231,18 @@ int UnSerialization (char* buffer, st_Vector& value)
 	iSize += sizeof(value.X);
 	memcpy(&value.Y, buffer + iSize, sizeof(value.Y));
 	iSize += sizeof(value.Y);
+	return iSize;
+}
+
+int UnSerialization (char* buffer, st_Vector3F& value)
+{
+	int iSize = 0;
+	memcpy(&value.X, buffer + iSize, sizeof(value.X));
+	iSize += sizeof(value.X);
+	memcpy(&value.Y, buffer + iSize, sizeof(value.Y));
+	iSize += sizeof(value.Y);
+	memcpy(&value.Z, buffer + iSize, sizeof(value.Z));
+	iSize += sizeof(value.Z);
 	return iSize;
 }
 

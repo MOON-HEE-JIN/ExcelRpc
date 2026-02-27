@@ -47,6 +47,10 @@ int CWRRPCManager::READ_STRUCT()
                 if (enumType != nullptr)
                     pinsertMap = &m_map_CTS_ETS;
 
+                enumType = strstr(value, "PROJECT");
+                if(enumType != nullptr)
+					pinsertMap = &m_map_ProjectDefineStruct;
+
                 enumType = strstr(value, "NULL");
                 if (enumType != nullptr)
                     pinsertMap = &m_map_NULL_ETS;
@@ -100,6 +104,11 @@ int CWRRPCManager::READ_STRUCT()
                         (*pinsertMap)[value] = value;
                         m_vecStructName.push_back(value);
                     }
+                    else if (pinsertMap == &m_map_ProjectDefineStruct)
+                    {
+                        (*pinsertMap)[value] = value;
+                        m_vecStructName.push_back(value);
+                    }
                     else
                         (*pinsertMap)[struct_enum] = value;
                 }
@@ -124,7 +133,7 @@ int CWRRPCManager::READ_STRUCT()
                         node.Type = Node_Type::Variable;
                         if (map_iter != m_map_Struct.end())
                             node.Type = Node_Type::Struct;
-
+                        
                         variable_index++;
                     }
                     // 변수 이름 읽을 차례

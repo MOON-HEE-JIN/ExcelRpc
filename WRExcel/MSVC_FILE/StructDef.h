@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "ProjectDefineStruct.h"
 struct st_Header
 {
 	__int32		type;
@@ -24,9 +25,9 @@ struct st_Info2
 struct st_Info3
 {
 	__int32		Loop1;
-	st_Vector		vec[100];
+	st_Vector3F		vec[100];
 	__int32		Loop2;
-	__int32		ID[100];
+	st_Vector		ID[100];
 };
 struct st_CTS_ChangePid
 {

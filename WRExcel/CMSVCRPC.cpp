@@ -19,10 +19,14 @@ bool CMSVCRPC::MSVC_WRITE_STRUCT(const char* h_structdeffilename)
 
     fprintf(fp, "#pragma once\n\n");
     fprintf(fp, "#include <string>\n");
+    fprintf(fp, "#include \"ProjectDefineStruct.h\"\n");
     int Loop = g_CWRRPCManager.m_vecStructName.size();
     for (int i = 0; i < Loop; i++)
     {
         STRUCTMAP_ITER iter = g_CWRRPCManager.m_map_Struct.find(g_CWRRPCManager.m_vecStructName[i]);
+
+        if (g_CWRRPCManager.m_map_ProjectDefineStruct.find(iter->first) != g_CWRRPCManager.m_map_ProjectDefineStruct.end())
+            continue;
 
         fprintf(fp, "struct %s\n", iter->first.c_str());
         fprintf(fp, "{\n");
@@ -52,6 +56,8 @@ bool CMSVCRPC::MSVC_WRITE_STRUCT(const char* h_structdeffilename)
     {
         if (g_CWRRPCManager.m_map_NULL_ETS.find(iter->first) != g_CWRRPCManager.m_map_NULL_ETS.end())
             continue;
+        if(g_CWRRPCManager.m_map_ProjectDefineStruct.find(iter->first) != g_CWRRPCManager.m_map_ProjectDefineStruct.end())
+			continue;
 
         fprintf(fp, "struct %s\n", iter->first.c_str());
         fprintf(fp, "{\n");
