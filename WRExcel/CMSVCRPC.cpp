@@ -1,4 +1,4 @@
-#include "CMSVCRPC.h"
+﻿#include "CMSVCRPC.h"
 
 #include "CWRStruct.h"
 
@@ -250,16 +250,22 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
         }
 
         fprintf(fp, "#include \"%s.h\" \n", filename);
+        fprintf(fp, "#include \"PacketEnumDef.h\"\n");
         fprintf(fp, "#include <memory.h>\n\n");
 
         const std::string D_funcname = "int Serialization (char* buffer, ";
         STRUCTMAP_ITER map_iter = g_CWRRPCManager.m_map_Struct.begin();
+        std::list<Node> header = g_CWRRPCManager.m_map_Struct["st_Header"];
         for (map_iter; map_iter != g_CWRRPCManager.m_map_Struct.end(); map_iter++)
         {
             STRUCTLIST_ITER list_iter = map_iter->second.begin();
 
             std::string funcname;
             std::string funccontents;
+            std::string enumname = "null";
+
+            bool dynamic = false;
+            std::string dynamicNumber = "0";
             for (list_iter; list_iter != map_iter->second.end(); list_iter++)
             {
                 Node_Type type = list_iter->Type;
@@ -269,10 +275,31 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
                 switch (type)
                 {
                 case Node_Type::Name:
+                {
                     funcname = D_funcname + name + "& value)\n{\n";
-                    funccontents += "\tint iSize = 0;\n";
+                    int strfindret = name.find("CTS");
+                    if (strfindret != std::string::npos)
+                        enumname = g_CWRRPCManager.GetCTS_String(name);
+                    else
+                        enumname = g_CWRRPCManager.GetSTC_String(name);
+
+                    std::string strsize = "0";
+                    if (enumname != "null")
+                    {
+                        funccontents += "\tint hSize = 0;\n";
+                        funccontents += "\tst_Header header;\n";   
+                        strsize = "sizeof(st_Header)";
+                    }
+                    funccontents += "\tint iSize = "+ strsize +";\n";
+                }
                     break;
                 case Node_Type::Variable:
+                    if (list_iter->Name == "net_Count")
+                    {
+                        dynamic = true;
+                        dynamicNumber = vatablename;
+                    }
+                    
                     if (list_iter->Name == "net_string")
                     {
                         funccontents += "\tmemcpy(buffer + iSize, value." + vatablename + ".c_str() , value." + vatablename + ".length());\n";
@@ -286,23 +313,49 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
                     break;
                 case Node_Type::Array:
                 {
-                    funccontents += "\tmemcpy(buffer + iSize, &value." + vatablename + ","
-                        + "sizeof(value." + vatablename + "[0] * " + std::to_string(arraysize) + "));\n";
-                    funccontents += "\tiSize += sizeof(" + std::to_string(arraysize) + ");\n";
+                    if (dynamic)
+                    {
+                        funccontents += "\tmemcpy(buffer + iSize, &value." + vatablename + ","
+                            + "sizeof(value." + vatablename + "[0]) * value." + dynamicNumber + ");\n";
+                        funccontents += "\tiSize += sizeof(value." + vatablename + "[0]) *" + "value." + dynamicNumber + ";\n";
+                    }
+                    else
+                    {
+                        funccontents += "\tmemcpy(buffer + iSize, &value." + vatablename + ","
+                            + "sizeof(value." + vatablename + "[0] * " + std::to_string(arraysize) + "));\n";
+                        funccontents += "\tiSize += sizeof(value." + vatablename + "[0]) *" + std::to_string(arraysize) + ";\n";
+                    }
                 }
                 break;
                 case Node_Type::Struct:
                     funccontents += "\tiSize += Serialization(buffer + iSize, value." + vatablename + ");\n";
                     break;
                 case Node_Type::StructArray:
-                    funccontents += "\tfor(int i = 0; i < " + std::to_string(arraysize) + "; ++i)\n";
-                    funccontents += "{\n";
-                    funccontents += "\t\tiSize += Serialization(buffer + iSize, value." + vatablename + "[i]);\n";
-                    funccontents += "}\n";
+                    if (dynamic)
+                    {
+                        funccontents += "\tfor(int i = 0; i < value." + dynamicNumber + "; ++i)\n";
+                        funccontents += "\t{\n";
+                        funccontents += "\t\tiSize += Serialization(buffer + iSize, value." + vatablename + "[i]);\n";
+                        funccontents += "\t}\n";
+                    }
+                    else
+                    {
+                        funccontents += "\tfor(int i = 0; i < " + std::to_string(arraysize) + "; ++i)\n";
+                        funccontents += "\t{\n";
+                        funccontents += "\t\tiSize += Serialization(buffer + iSize, value." + vatablename + "[i]);\n";
+                        funccontents += "\t}\n";
+                    }
                     break;
                 default:
                     break;
                 }
+            }
+
+            if (enumname != "null")
+            {
+                funccontents += "\n\theader.type = " + enumname + ";\n";
+                funccontents += "\theader.size = iSize - sizeof(st_Header);\n";
+                funccontents += "\tSerialization(buffer, header);\n";
             }
 
             fprintf(fp, funcname.c_str());
@@ -322,6 +375,10 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
 
                 std::string funcname;
                 std::string funccontents;
+
+                bool dynamic = false;
+                std::string dynamicNumber = "0";
+
                 for (list_iter; list_iter != map_iter->second.end(); list_iter++)
                 {
                     Node_Type type = list_iter->Type;
@@ -335,6 +392,12 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
                         funccontents += "\tint iSize = 0;\n";
                         break;
                     case Node_Type::Variable:
+                        if (list_iter->Name == "net_Count")
+                        {
+                            dynamic = true;
+                            dynamicNumber = vatablename;
+                        }
+
                         if(list_iter->Name == "net_string")
                         {
                             funccontents += "\tvalue."+ vatablename +".assign(buffer + iSize, value.length);\n";
@@ -348,19 +411,38 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
                         break;
                     case Node_Type::Array:
                     {
-                        funccontents += "\tmemcpy(&value." + vatablename + ", buffer + iSize" + ","
-                            + "sizeof(value." + vatablename + "[0] * " + std::to_string(arraysize) + "));\n";
-                        funccontents += "\tiSize += sizeof(" + std::to_string(arraysize) + ");\n";
+                        if (dynamic)
+                        {
+                            funccontents += "\tmemcpy(&value." + vatablename + ", buffer + iSize" + ","
+                                + "sizeof(value." + vatablename + "[0]) * value." + dynamicNumber + ");\n";
+                            funccontents += "\tiSize += sizeof(value." + vatablename + "[0]) * value." + dynamicNumber + ";\n";
+                        }
+                        else
+                        {
+                            funccontents += "\tmemcpy(&value." + vatablename + ", buffer + iSize" + ","
+                                + "sizeof(value." + vatablename + "[0]) * " + std::to_string(arraysize) + ");\n";
+                            funccontents += "\tiSize += sizeof(value." + vatablename + "[0]) * " + std::to_string(arraysize) + ";\n";
+                        }
                     }
                     break;
                     case Node_Type::Struct:
                         funccontents += "\tiSize += UnSerialization(buffer + iSize, value." + vatablename + ");\n";
                         break;
                     case Node_Type::StructArray:
-                        funccontents += "\tfor(int i = 0; i < " + std::to_string(arraysize) + "; ++i)\n";
-                        funccontents += "{\n";
-                        funccontents += "\t\tiSize += UnSerialization(buffer + iSize, value." + vatablename + "[i]);\n";
-                        funccontents += "}\n";
+                        if (dynamic)
+                        {
+                            funccontents += "\tfor(int i = 0; i < value." + dynamicNumber + "; ++i)\n";
+                            funccontents += "\t{\n";
+                            funccontents += "\t\tiSize += UnSerialization(buffer + iSize, value." + vatablename + "[i]);\n";
+                            funccontents += "\t}\n";
+                        }
+                        else
+                        {
+                            funccontents += "\tfor(int i = 0; i < " + std::to_string(arraysize) + "; ++i)\n";
+                            funccontents += "{\n";
+                            funccontents += "\t\tiSize += UnSerialization(buffer + iSize, value." + vatablename + "[i]);\n";
+                            funccontents += "}\n";
+                        }
                         break;
                     default:
                         break;

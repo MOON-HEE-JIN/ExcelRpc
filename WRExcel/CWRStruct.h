@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "CWRExcel.h"
 #include "Def.h"
 
@@ -47,7 +47,9 @@ public:
     std::vector<std::string> m_vecStructName;
 
     std::map<std::string, std::string> m_map_STC_ETS;   // Server to Client , Enum to Struct
+    std::string GetSTC_String(std::string str);
     std::map<std::string, std::string> m_map_CTS_ETS;   // Client to Server , Enum to Struct
+    std::string GetCTS_String(std::string str);
     std::map<std::string, std::string> m_map_NULL_ETS;   // NULL , Enum to Struct
 
     std::map<std::string, std::map<std::string, std::string>> m_mapTotalGenerator;

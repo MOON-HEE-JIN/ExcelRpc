@@ -6,6 +6,28 @@ struct st_Header
 	__int32		type;
 	__int32		size;
 };
+struct st_Vector
+{
+	float		X;
+	float		Y;
+};
+struct st_Info1
+{
+	__int32		Loop1;
+	__int32		ID[50];
+};
+struct st_Info2
+{
+	__int32		Loop1;
+	st_Vector		vec[100];
+};
+struct st_Info3
+{
+	__int32		Loop1;
+	st_Vector		vec[100];
+	__int32		Loop2;
+	__int32		ID[100];
+};
 struct st_CTS_ChangePid
 {
 	__int32		pid;
