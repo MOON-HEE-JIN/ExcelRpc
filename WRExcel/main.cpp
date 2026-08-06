@@ -1,64 +1,44 @@
-﻿
-#define PROCESS_FROM_FILEHANDLE
-#include <corecrt_io.h>
-#pragma warning(disable : 4996)
+#include "CSharpRpcGenerator.h"
+#include "MsvcRpcGenerator.h"
+#include "RpcSchemaManager.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include "Def.h"
-#include <iostream>
-
-#include <windows.h>
-
-#ifdef PROCESS_FROM_FILEHANDLE
-//#include <io.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#endif
-#include "xlsxio_read.h"
-
-#if !defined(XML_UNICODE_WCHAR_T) && !defined(XML_UNICODE)
-//UTF-8 version
-#define X(s) s
-#define XML_Char_printf printf
-#else
-//UTF-16 version
-#define X(s) L##s
-#define XML_Char_printf wprintf
-#endif
-
-#include <map>
-#include <list>
+#include <cstdio>
 #include <string>
 
-
-#include "CWRExcel.h"
-#include "CWRStruct.h"
-#include "CMSVCRPC.h"
-#include "CCshapRPC.h"
-
-int main(int argc, char* argv[])
+namespace
 {
-    if (1)
-    {
-        CMSVCRPC t;
-        //t.MSVC_ALL_FILE();
-
-        g_CWRRPCManager.Init("RPC_GAME_EXCEL.xlsx");
-        //g_CWRRPCManager.Init("RPC_OBSERVER_EXCEL.xlsx");
-        //"RPC_GAME_EXCEL.xlsx"
-        //RPC_CHAT_EXCEL
-        //t.SetCustomName("Observer_");
-        t.MSVC_ALL_FILE();
-
-        //CCshapRPC tt;
-        //tt.CSHAP_ALL_FILE();
-        
-        system("pause");
-        return 0;
-   }
-    printf("END\n\n");
-    return 0;
+constexpr const char* kDefaultWorkbook = "RPC_GAME_EXCEL.xlsx";
+constexpr const char* kMsvcTarget = "msvc";
+constexpr const char* kCSharpTarget = "csharp";
 }
 
+int main(int argumentCount, char* arguments[])
+{
+    const std::string workbookFileName =
+        argumentCount > 1 ? arguments[1] : kDefaultWorkbook;
+    const std::string generatorTarget =
+        argumentCount > 2 ? arguments[2] : kMsvcTarget;
+
+    if (!g_rpcSchemaManager.LoadSchema(workbookFileName))
+    {
+        return 1;
+    }
+
+    if (generatorTarget == kMsvcTarget)
+    {
+        MsvcRpcGenerator generator;
+        return generator.GenerateAll() ? 0 : 1;
+    }
+
+    if (generatorTarget == kCSharpTarget)
+    {
+        CSharpRpcGenerator generator;
+        return generator.GenerateAll() ? 0 : 1;
+    }
+
+    std::fprintf(
+        stderr,
+        "Unknown generator target '%s'. Use 'msvc' or 'csharp'.\n",
+        generatorTarget.c_str());
+    return 1;
+}
