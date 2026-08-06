@@ -2,13 +2,17 @@
 
 #include "CWRStruct.h"
 
-bool CMSVCRPC::MSVC_WRITE_STRUCT(const char* h_structdeffilename)
+bool CMSVCRPC::MSVC_WRITE_STRUCT(const char* filename)
 {
 	printf("=== WRITE MSVC STRUCT FILE ===\n");
 
 	FILE* fp;
-	char fp_name[512];
-	sprintf(fp_name, "%s%s", foldername, h_structdeffilename);
+	char fp_name[1024];
+
+    char customfilename[1024];
+    GetCustomNameAppendFileName(filename, customfilename);
+
+	sprintf(fp_name, "%s%s", foldername, customfilename);
 
 	fopen_s(&fp, fp_name, "w");
 	if (fp == nullptr)
@@ -19,10 +23,14 @@ bool CMSVCRPC::MSVC_WRITE_STRUCT(const char* h_structdeffilename)
 
     fprintf(fp, "#pragma once\n\n");
     fprintf(fp, "#include <string>\n");
+    fprintf(fp, "#include \"ProjectDefineStruct.h\"\n");
     int Loop = g_CWRRPCManager.m_vecStructName.size();
     for (int i = 0; i < Loop; i++)
     {
         STRUCTMAP_ITER iter = g_CWRRPCManager.m_map_Struct.find(g_CWRRPCManager.m_vecStructName[i]);
+
+        if (g_CWRRPCManager.m_map_ProjectDefineStruct.find(iter->first) != g_CWRRPCManager.m_map_ProjectDefineStruct.end())
+            continue;
 
         fprintf(fp, "struct %s\n", iter->first.c_str());
         fprintf(fp, "{\n");
@@ -52,6 +60,8 @@ bool CMSVCRPC::MSVC_WRITE_STRUCT(const char* h_structdeffilename)
     {
         if (g_CWRRPCManager.m_map_NULL_ETS.find(iter->first) != g_CWRRPCManager.m_map_NULL_ETS.end())
             continue;
+        if(g_CWRRPCManager.m_map_ProjectDefineStruct.find(iter->first) != g_CWRRPCManager.m_map_ProjectDefineStruct.end())
+			continue;
 
         fprintf(fp, "struct %s\n", iter->first.c_str());
         fprintf(fp, "{\n");
@@ -86,13 +96,16 @@ bool CMSVCRPC::MSVC_WRITE_STRUCT(const char* h_structdeffilename)
     return true;
 }
 
-bool CMSVCRPC::MSVC_WRITE_PROC_ENUM(const char* h_enumfileanme)
+bool CMSVCRPC::MSVC_WRITE_PROC_ENUM(const char* filename)
 {
     printf("=== WRITE MSVC PROC ENUM FILE ===\n");
 
     FILE* fp;
     char fp_name[512];
-    sprintf(fp_name, "%s%s", foldername, h_enumfileanme);
+    char customfilename[1024];
+    GetCustomNameAppendFileName(filename, customfilename);
+
+    sprintf(fp_name, "%s%s", foldername, customfilename);
 
     fopen_s(&fp, fp_name, "w");
     if (fp == nullptr)
@@ -134,7 +147,11 @@ bool CMSVCRPC::MSVC_WRITE_ENUM(const char* filename)
 
     FILE* fp;
     char fp_name[512];
-    sprintf(fp_name, "%s%s", foldername, filename);
+
+    char customfilename[1024];
+    GetCustomNameAppendFileName(filename, customfilename);
+
+    sprintf(fp_name, "%s%s", foldername, customfilename);
 
     fopen_s(&fp, fp_name, "w");
     if (fp == nullptr)
@@ -176,8 +193,12 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
 
     char h_filename[512];
     char cpp_filename[512];
-    sprintf(h_filename, "%s%s.h", foldername, filename);
-    sprintf(cpp_filename, "%s%s.cpp", foldername, filename);
+
+    char customfilename[1024];
+    GetCustomNameAppendFileName(filename, customfilename);
+
+    sprintf(h_filename, "%s%s.h", foldername, customfilename);
+    sprintf(cpp_filename, "%s%s.cpp", foldername, customfilename);
 
     // write header file
     {
@@ -190,8 +211,11 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
         }
 
         fprintf(fp, "#pragma once\n\n");
-        fprintf(fp, "#include \"StructDef.h\" \n\n");
 
+        char structheaderfile[1024];
+        GetCustomNameAppendFileName("StructDef.h", structheaderfile);
+
+        fprintf(fp, "#include \"%s\" \n\n", structheaderfile);
 
         //Serialization
         std::string D_funcname = "int Serialization(char* buffer, ";
@@ -206,7 +230,16 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
             {
                 if (list_iter->Type == Node_Type::Name)
                 {
-                    funcname = D_funcname + list_iter->Name + "& _value);";
+                    STRUCTMAP_ITER iter = g_CWRRPCManager.m_map_Struct.find(list_iter->Name);
+                    if (g_CWRRPCManager.m_map_ProjectDefineStruct.find(iter->first) != g_CWRRPCManager.m_map_ProjectDefineStruct.end())
+                    {
+                        funcname = "static " + D_funcname + list_iter->Name + "& _value);";
+                    }
+                    else
+                    {
+                        funcname = D_funcname + list_iter->Name + "& _value);";
+                    }
+
                 }
             }
             funcname += "\n";
@@ -249,8 +282,12 @@ bool CMSVCRPC::MSVC_WRITE_SERIALIZATION(const char* filename)
             return false;
         }
 
-        fprintf(fp, "#include \"%s.h\" \n", filename);
-        fprintf(fp, "#include \"PacketEnumDef.h\"\n");
+        fprintf(fp, "#include \"%s.h\" \n", customfilename);
+        
+        char enumheaderfile[1024];
+        GetCustomNameAppendFileName("PacketEnumDef.h", enumheaderfile);
+
+        fprintf(fp, "#include \"%s\"\n", enumheaderfile);
         fprintf(fp, "#include <memory.h>\n\n");
 
         const std::string D_funcname = "int Serialization (char* buffer, ";
@@ -474,7 +511,11 @@ bool CMSVCRPC::MSVC_WRITE_CTSSTUB(const char* filename)
     {
         FILE* fp;
         char fp_name[512];
-        sprintf(fp_name, "%s%s.h", foldername, filename);
+
+        char customfilename[1024];
+        GetCustomNameAppendFileName(filename, customfilename);
+
+        sprintf(fp_name, "%s%s.h", foldername, customfilename);
 
         fopen_s(&fp, fp_name, "w");
 
@@ -537,7 +578,12 @@ bool CMSVCRPC::MSVC_WRITE_CTSSTUB(const char* filename)
     //cpp file
     {
         char fp_name[512];
-        sprintf(fp_name, "%s%s.cpp", foldername, filename);
+
+        char customfilename[1024];
+        GetCustomNameAppendFileName(filename, customfilename);
+
+        sprintf(fp_name, "%s%s.cpp", foldername, customfilename);
+
         FILE* fp;
         fopen_s(&fp, fp_name, "w");
 
@@ -548,8 +594,10 @@ bool CMSVCRPC::MSVC_WRITE_CTSSTUB(const char* filename)
         }
 
         //header
-        fprintf(fp, "#include \"PacketEnumDef.h\"\n");
-        fprintf(fp, "#include \"%s.h\"\n\n", filename);
+        char custompacketenumfilename[1024];
+        GetCustomNameAppendFileName("PacketEnumDef.h", custompacketenumfilename);
+        fprintf(fp, "#include \"%s\"\n", custompacketenumfilename);
+        fprintf(fp, "#include \"%s.h\"\n\n", customfilename);
 
         fprintf(fp, "template<typename Object, typename Packet>\n");
         fprintf(fp, "void Stub<Object,Packet>::InitRegisterFuncPointer()\n{\n");
@@ -615,7 +663,11 @@ bool CMSVCRPC::MSVC_WRITE_STCSTUB(const char* filename)
     {
         FILE* fp;
         char fp_name[512];
-        sprintf(fp_name, "%s%s.h", foldername, filename);
+        
+        char customfilename[1024];
+        GetCustomNameAppendFileName(filename, customfilename);
+        
+        sprintf(fp_name, "%s%s.h", foldername, customfilename);
 
         fopen_s(&fp, fp_name, "w");
 
@@ -680,7 +732,12 @@ bool CMSVCRPC::MSVC_WRITE_STCSTUB(const char* filename)
     //cpp file
     {
         char fp_name[512];
-        sprintf(fp_name, "%s%s.cpp", foldername, filename);
+
+        char customfilename[1024];
+        GetCustomNameAppendFileName(filename, customfilename);
+
+        sprintf(fp_name, "%s%s.cpp", foldername, customfilename);
+
         FILE* fp;
         fopen_s(&fp, fp_name, "w");
 
@@ -691,8 +748,11 @@ bool CMSVCRPC::MSVC_WRITE_STCSTUB(const char* filename)
         }
 
         //header
-        fprintf(fp, "#include \"PacketEnumDef.h\"\n");
-        fprintf(fp, "#include \"%s.h\"\n", filename);
+        char custompacketenumfilename[1024];
+        GetCustomNameAppendFileName("PacketEnumDef.h", custompacketenumfilename);
+        fprintf(fp, "#include \"%s\"\n", custompacketenumfilename);
+
+        fprintf(fp, "#include \"%s.h\"\n", customfilename);
 
         fprintf(fp, "template<typename Object, typename Packet>\n");
         fprintf(fp, "void Stub<Object,Packet>::InitRegisterFuncPointer()\n{\n");
@@ -742,4 +802,22 @@ bool CMSVCRPC::MSVC_WRITE_STCSTUB(const char* filename)
         fclose(fp);
     }
     return true;
+}
+
+void CMSVCRPC::SetCustomName(const char* name)
+{
+    int len = strlen(name);
+    if (len > 255)
+        return;
+
+    strcpy(CustomFileName, name);
+}
+
+void CMSVCRPC::GetCustomNameAppendFileName(const char* name, char* out)
+{
+    if (strcmp(CustomFileName, "") == 0)
+        strcpy(out, name);
+    else
+        sprintf(out, "%s%s", CustomFileName, name);
+    
 }

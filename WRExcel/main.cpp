@@ -1,4 +1,4 @@
-
+﻿
 #define PROCESS_FROM_FILEHANDLE
 #include <corecrt_io.h>
 #pragma warning(disable : 4996)
@@ -46,12 +46,14 @@ int main(int argc, char* argv[])
         //t.MSVC_ALL_FILE();
 
         g_CWRRPCManager.Init("RPC_GAME_EXCEL.xlsx");
+        //g_CWRRPCManager.Init("RPC_OBSERVER_EXCEL.xlsx");
         //"RPC_GAME_EXCEL.xlsx"
         //RPC_CHAT_EXCEL
+        //t.SetCustomName("Observer_");
         t.MSVC_ALL_FILE();
 
-        CCshapRPC tt;
-        tt.CSHAP_ALL_FILE();
+        //CCshapRPC tt;
+        //tt.CSHAP_ALL_FILE();
         
         system("pause");
         return 0;

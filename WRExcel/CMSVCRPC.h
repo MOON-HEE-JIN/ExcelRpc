@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class CMSVCRPC
 {
 
@@ -6,6 +6,7 @@ public: //MSVC
     bool CreateFileMSVC();
 private://MSVC
     const char* foldername = "MSVC_FILE\\";
+    char CustomFileName[256] = "";
 public:
     bool MSVC_ALL_FILE()
     {
@@ -19,12 +20,14 @@ public:
         return 0;
     };
 
-    bool MSVC_WRITE_STRUCT(const char* h_structdeffilename = "StructDef.h");
-    bool MSVC_WRITE_PROC_ENUM(const char* h_enumfileanme = "PacketEnumDef.h");
+    bool MSVC_WRITE_STRUCT(const char* filename = "StructDef.h");
+    bool MSVC_WRITE_PROC_ENUM(const char* filename = "PacketEnumDef.h");
     bool MSVC_WRITE_ENUM(const char* filename = "EnumDef.h");
     bool MSVC_WRITE_SERIALIZATION(const char* filename = "Serialization");
 
     bool MSVC_WRITE_CTSSTUB(const char* filename = "SERVER_STUB");
     bool MSVC_WRITE_STCSTUB(const char* filename = "CLIENT_STUB");
 
+    void SetCustomName(const char* name);
+    void GetCustomNameAppendFileName(const char* name, char* out);
 };

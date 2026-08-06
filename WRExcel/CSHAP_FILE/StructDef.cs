@@ -11,6 +11,13 @@ public struct st_Vector
 		public float		X;
 		public float		Y;
 	}
+public struct st_Vector3F
+	{
+		 public st_Vector3F(){}
+		public float		X;
+		public float		Y;
+		public float		Z;
+	}
 public struct st_Info1
 	{
 		 public st_Info1(){}
@@ -27,9 +34,9 @@ public struct st_Info3
 	{
 		 public st_Info3(){}
 		public Int32		Loop1;
-		public st_Vector		[]vec = new st_Vector[100];
+		public st_Vector3F		[]vec = new st_Vector3F[100];
 		public Int32		Loop2;
-		public Int32		[]ID = new Int32[100];
+		public st_Vector		[]ID = new st_Vector[100];
 	}
 	public struct st_CTS_ChangePid
 	{
@@ -53,5 +60,12 @@ public struct st_Info3
 		public Int32		ret;
 		public Int32		zone;
 		public Int64		data;
+	}
+	public struct st_Vector3F
+	{
+		public st_Vector3F(){}
+		public float		X;
+		public float		Y;
+		public float		Z;
 	}
 }

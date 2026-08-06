@@ -57,7 +57,7 @@ namespace CSHAP_SERVER.Models
 			BinaryPrimitives.WriteInt32LittleEndian(dst.Slice(offset, sizeof(Int32)), _value.Loop2); offset += sizeof(Int32);
 			foreach(var v in _value.ID)
 			{
-				BinaryPrimitives.WriteInt32LittleEndian(dst.Slice(offset, sizeof(Int32)), v); offset += sizeof(Int32);
+				offset += WritePacket(dst.Slice(offset), v);
 			}
 			return offset;
 		}
@@ -80,6 +80,14 @@ namespace CSHAP_SERVER.Models
 			int offset = 0;
 			BinaryPrimitives.WriteInt32LittleEndian(dst.Slice(offset, sizeof(float)), BitConverter.SingleToInt32Bits(_value.X)); offset += sizeof(float);
 			BinaryPrimitives.WriteInt32LittleEndian(dst.Slice(offset, sizeof(float)), BitConverter.SingleToInt32Bits(_value.Y)); offset += sizeof(float);
+			return offset;
+		}
+		public static int WritePacket(Span<byte> dst, st_Vector3F _value)
+		{
+			int offset = 0;
+			BinaryPrimitives.WriteInt32LittleEndian(dst.Slice(offset, sizeof(float)), BitConverter.SingleToInt32Bits(_value.X)); offset += sizeof(float);
+			BinaryPrimitives.WriteInt32LittleEndian(dst.Slice(offset, sizeof(float)), BitConverter.SingleToInt32Bits(_value.Y)); offset += sizeof(float);
+			BinaryPrimitives.WriteInt32LittleEndian(dst.Slice(offset, sizeof(float)), BitConverter.SingleToInt32Bits(_value.Z)); offset += sizeof(float);
 			return offset;
 		}
 	}
@@ -136,7 +144,7 @@ namespace CSHAP_SERVER.Models
 			_value.Loop2 = BinaryPrimitives.ReadInt32LittleEndian(src.Slice(offset, sizeof(Int32))); offset += sizeof(Int32);
 			for(int i = 0; i < 100; i++)
 			{
-				_value.ID[i] = BinaryPrimitives.ReadInt32LittleEndian(src.Slice(offset, sizeof(Int32))); offset += sizeof(Int32);
+				offset += ReadPacket(src.Slice(offset), ref _value. ID[i]);
 			}
 			return offset;
 		}
@@ -164,6 +172,23 @@ namespace CSHAP_SERVER.Models
 			{
 			int bits = BinaryPrimitives.ReadInt32LittleEndian(src.Slice(offset, sizeof(float))); offset += sizeof(float);
 			_value.Y = BitConverter.Int32BitsToSingle(bits);
+			}
+			return offset;
+		}
+		public static int ReadPacket(ReadOnlySpan<byte> src, ref st_Vector3F _value)
+		{
+			int offset = 0;
+			{
+			int bits = BinaryPrimitives.ReadInt32LittleEndian(src.Slice(offset, sizeof(float))); offset += sizeof(float);
+			_value.X = BitConverter.Int32BitsToSingle(bits);
+			}
+			{
+			int bits = BinaryPrimitives.ReadInt32LittleEndian(src.Slice(offset, sizeof(float))); offset += sizeof(float);
+			_value.Y = BitConverter.Int32BitsToSingle(bits);
+			}
+			{
+			int bits = BinaryPrimitives.ReadInt32LittleEndian(src.Slice(offset, sizeof(float))); offset += sizeof(float);
+			_value.Z = BitConverter.Int32BitsToSingle(bits);
 			}
 			return offset;
 		}

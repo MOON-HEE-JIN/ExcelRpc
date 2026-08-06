@@ -1,49 +1,124 @@
 #pragma once
 
 #include <string>
-struct st_Header
+#include "ProjectDefineStruct.h"
+struct st_EntityInfo
 {
 	__int32		type;
-	__int32		size;
+	__int32		ID;
+	st_Vector3F		pos;
 };
-struct st_Vector
+struct st_ConnectInfo
 {
-	float		X;
-	float		Y;
+	__int32		ID;
 };
-struct st_Info1
+struct st_String
 {
-	__int32		Loop1;
-	__int32		ID[50];
+	__int16		length;
+	std::string		comment;
 };
-struct st_Info2
+struct st_Msg
 {
-	__int32		Loop1;
-	st_Vector		vec[100];
+	__int32		type;
+	st_String		Message;
 };
-struct st_Info3
+struct st_PlayerInfo
 {
-	__int32		Loop1;
-	st_Vector		vec[100];
-	__int32		Loop2;
-	__int32		ID[100];
+	__int32		ID;
+	st_Vector3F		pos;
+	float		speed;
 };
-struct st_CTS_ChangePid
+struct st_CTS_ChangeZone
 {
-	__int32		pid;
+	__int32		channel;
+	__int32		zone;
 };
 struct st_CTS_LoopBack
 {
-	__int32		zone;
 	__int64		data;
 };
-struct st_STC_ChangePid
+struct st_CTS_MoveStart
+{
+	st_Vector3F		dir;
+	st_Vector3F		goal;
+	st_Vector3F		pos;
+};
+struct st_CTS_MoveStop
+{
+	st_Vector3F		pos;
+};
+struct st_CTS_ObserverConnect
+{
+	__int32		ID;
+	__int32		zone;
+};
+struct st_CTS_Teleport
+{
+	st_Vector3F		pos;
+};
+struct st_STC_AoiInPlayer
+{
+	st_PlayerInfo		info;
+};
+struct st_STC_AoiInPlayers
+{
+	__int32		Loop1;
+	st_PlayerInfo		info[50];
+};
+struct st_STC_AoiOutPlayer
+{
+	__int32		ID;
+};
+struct st_STC_AoiOutPlayers
+{
+	__int32		Loop1;
+	st_PlayerInfo		info[50];
+};
+struct st_STC_ChangeZone
 {
 	__int32		ret;
+	__int32		channel;
+	__int32		zone;
+};
+struct st_STC_ChangeingZone
+{
+	__int32		ret;
+	__int32		type;
+};
+struct st_STC_ConnectInfo
+{
+	st_ConnectInfo		info;
 };
 struct st_STC_LoopBack
 {
 	__int32		ret;
-	__int32		zone;
 	__int64		data;
+};
+struct st_STC_MoveStart
+{
+	__int32		ret;
+	st_Vector3F		pos;
+};
+struct st_STC_MoveStop
+{
+	__int32		ret;
+	__int32		type;
+	__int32		ID;
+	st_Vector3F		pos;
+};
+struct st_STC_ObserverConnect
+{
+	__int32		ret;
+};
+struct st_STC_OtherMoveStart
+{
+	__int32		type;
+	__int32		ID;
+	st_Vector3F		pos;
+	st_Vector3F		dir;
+};
+struct st_STC_Teleport
+{
+	__int32		ret;
+	st_Vector3F		pos;
 };

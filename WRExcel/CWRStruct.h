@@ -50,7 +50,8 @@ public:
     std::string GetSTC_String(std::string str);
     std::map<std::string, std::string> m_map_CTS_ETS;   // Client to Server , Enum to Struct
     std::string GetCTS_String(std::string str);
-    std::map<std::string, std::string> m_map_NULL_ETS;   // NULL , Enum to Struct
+    std::map<std::string, std::string> m_map_NULL_ETS;   // NULL
+    std::map<std::string, std::string> m_map_ProjectDefineStruct;
 
     std::map<std::string, std::map<std::string, std::string>> m_mapTotalGenerator;
 };
