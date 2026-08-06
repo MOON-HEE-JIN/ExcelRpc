@@ -1,81 +1,66 @@
 #pragma once
-#include <string>
-#include <unordered_map>
-#include <map>
+
 #include <list>
+#include <map>
+#include <string>
+#include <utility>
 
-#define EnumToString(x) #x
-
-enum BuildType
+enum class FieldKind
 {
-	BuildNone,
-	MSVC,
-	Cshap,
+    StructureName,
+    Scalar,
+    Array,
+    Structure,
+    StructureArray,
 };
 
-enum Node_Type
+struct EnumEntry
 {
-	Name,
-	Variable,
-	Array,
-	Struct,
-	StructArray,
-	EMPTY
+    std::string name;
+    std::string valueExpression;
+    std::string comment;
+    bool useWideTabAlignment = false;
 };
 
-struct ENode
+struct FieldDefinition
 {
-	std::string EName;
-	std::string EValue;
-	std::string EComment;
-	bool tab;
+    FieldKind kind = FieldKind::StructureName;
+    std::string typeName;
+    std::string variableName;
+    int arraySize = 0;
+
+    FieldDefinition() = default;
+
+    explicit FieldDefinition(FieldKind fieldKind)
+        : kind(fieldKind)
+    {
+    }
+
+    FieldDefinition(FieldKind fieldKind, std::string fieldTypeName)
+        : kind(fieldKind), typeName(std::move(fieldTypeName))
+    {
+    }
+
+    FieldDefinition(FieldKind fieldKind, std::string fieldTypeName, std::string fieldVariableName)
+        : kind(fieldKind),
+          typeName(std::move(fieldTypeName)),
+          variableName(std::move(fieldVariableName))
+    {
+    }
+
+    FieldDefinition(
+        FieldKind fieldKind,
+        std::string fieldTypeName,
+        std::string fieldVariableName,
+        int fieldArraySize)
+        : kind(fieldKind),
+          typeName(std::move(fieldTypeName)),
+          variableName(std::move(fieldVariableName)),
+          arraySize(fieldArraySize)
+    {
+    }
 };
 
-struct Node
-{
-	Node_Type Type = Node_Type::Name;
-	std::string VariableName = "";
-	std::string VariableType = "";
-	std::string Name = "";
-	int ArraySize = 0;
-
-	Node()
-	{
-
-	}
-
-	Node(Node_Type _type)
-	{
-		Type = _type;
-	}
-
-	Node(Node_Type _type, std::string _name)
-	{
-		Type = _type;
-		Name = _name;
-	}
-
-	Node(Node_Type _type, std::string _name, std::string _variableName)
-	{
-		Type = _type;
-		Name = _name;
-		VariableName = _variableName;
-	}
-
-	Node(Node_Type _type, std::string _name, std::string _variableName, int _size)
-	{
-		Type = _type;
-		Name = _name;
-		VariableName = _variableName;
-		ArraySize = _size;
-	}
-
-};
-
-typedef std::map<std::string, std::list<Node>>::iterator STRUCTMAP_ITER;
-typedef std::map<std::string, std::list<ENode>>::iterator ENUMMAP_ITER;
-typedef std::map<std::string, std::string>::iterator STRSTR_ITER;
-typedef std::unordered_map<std::string, std::string>::iterator UNSTRSTR_ITER;
-
-typedef std::list<Node>::iterator STRUCTLIST_ITER;
-typedef std::list<ENode>::iterator ENUMLIST_ITER;
+using StructureMap = std::map<std::string, std::list<FieldDefinition>>;
+using EnumMap = std::map<std::string, std::list<EnumEntry>>;
+using StringMap = std::map<std::string, std::string>;

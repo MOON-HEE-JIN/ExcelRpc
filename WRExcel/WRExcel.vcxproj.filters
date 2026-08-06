@@ -16,7 +16,7 @@
     <Filter Include="소스 파일\FILEReturn">
       <UniqueIdentifier>{948cd56a-3148-4303-88ad-2c2e3df77b91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\CWRExcel">
+    <Filter Include="소스 파일\Workbook Reader">
       <UniqueIdentifier>{ee849a47-fb11-4d26-a9ef-45eef0f1e48d}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\ChildClass">
@@ -30,16 +30,16 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CWRExcel.cpp">
-      <Filter>소스 파일\CWRExcel</Filter>
+    <ClCompile Include="ExcelWorkbookReader.cpp">
+      <Filter>소스 파일\Workbook Reader</Filter>
     </ClCompile>
-    <ClCompile Include="CWRStruct.cpp">
+    <ClCompile Include="RpcSchemaManager.cpp">
       <Filter>소스 파일\ChildClass</Filter>
     </ClCompile>
-    <ClCompile Include="CMSVCRPC.cpp">
+    <ClCompile Include="MsvcRpcGenerator.cpp">
       <Filter>소스 파일\Generator</Filter>
     </ClCompile>
-    <ClCompile Include="CCShapRPC.cpp">
+    <ClCompile Include="CSharpRpcGenerator.cpp">
       <Filter>소스 파일\Generator</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,16 +47,16 @@
     <ClInclude Include="Def.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CWRExcel.h">
-      <Filter>소스 파일\CWRExcel</Filter>
+    <ClInclude Include="ExcelWorkbookReader.h">
+      <Filter>소스 파일\Workbook Reader</Filter>
     </ClInclude>
-    <ClInclude Include="CWRStruct.h">
+    <ClInclude Include="RpcSchemaManager.h">
       <Filter>소스 파일\ChildClass</Filter>
     </ClInclude>
-    <ClInclude Include="CMSVCRPC.h">
+    <ClInclude Include="MsvcRpcGenerator.h">
       <Filter>소스 파일\Generator</Filter>
     </ClInclude>
-    <ClInclude Include="CCshapRPC.h">
+    <ClInclude Include="CSharpRpcGenerator.h">
       <Filter>소스 파일\Generator</Filter>
     </ClInclude>
   </ItemGroup>
