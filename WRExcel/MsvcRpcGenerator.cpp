@@ -1,4 +1,4 @@
-#include "MsvcRpcGenerator.h"
+﻿#include "MsvcRpcGenerator.h"
 
 #include "RpcSchemaManager.h"
 
@@ -226,14 +226,18 @@ bool MsvcRpcGenerator::WriteSerialization(const char* fileName)
                 if (list_iter->kind == FieldKind::StructureName)
                 {
                     StructureMap::iterator iter = g_rpcSchemaManager.structures.find(list_iter->typeName);
+                    functionName = functionPrefix + list_iter->typeName + "& _value);";
+					// static 없어도 됨 projectDefinedStructures에 있으면 ProjectDefineStruct.h 파일을 Struct.Def.h보다 먼저 include 시켜서 이미 정의되어있음
+                    /*
                     if (g_rpcSchemaManager.projectDefinedStructures.find(iter->first) != g_rpcSchemaManager.projectDefinedStructures.end())
                     {
-                        functionName = "static " + functionPrefix + list_iter->typeName + "& _value);";
+                        functionName = functionPrefix + list_iter->typeName + "& _value);";
                     }
                     else
                     {
                         functionName = functionPrefix + list_iter->typeName + "& _value);";
                     }
+                    */
 
                 }
             }
