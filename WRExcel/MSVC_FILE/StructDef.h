@@ -90,6 +90,7 @@ struct st_STC_ChangeZone
 	__int32		ret;
 	__int32		channel;
 	__int32		zone;
+	st_Vector3F		spawn;
 };
 struct st_STC_ChangeingZone
 {

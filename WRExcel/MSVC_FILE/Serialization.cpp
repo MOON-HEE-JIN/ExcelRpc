@@ -240,6 +240,7 @@ int Serialization (char* buffer, st_STC_ChangeZone& value)
 	iSize += sizeof(value.channel);
 	memcpy(buffer + iSize, &value.zone, sizeof(value.zone));
 	iSize += sizeof(value.zone);
+	iSize += Serialization(buffer + iSize, value.spawn);
 
 	header.type = GAME::CHANGEZONE;
 	header.size = iSize - sizeof(st_Header);
@@ -565,6 +566,7 @@ int UnSerialization (char* buffer, st_STC_ChangeZone& value)
 	iSize += sizeof(value.channel);
 	memcpy(&value.zone, buffer + iSize, sizeof(value.zone));
 	iSize += sizeof(value.zone);
+	iSize += UnSerialization(buffer + iSize, value.spawn);
 	return iSize;
 }
 
