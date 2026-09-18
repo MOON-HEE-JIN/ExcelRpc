@@ -1,6 +1,9 @@
 #include "ExcelWorkbookReader.h"
 
 #include <cstdio>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
 
 #include <windows.h>
 
@@ -18,7 +21,17 @@ ExcelWorkbookReader::~ExcelWorkbookReader()
 bool ExcelWorkbookReader::OpenWorkbook(const char* fileName)
 {
     CloseWorkbook();
-    workbook_ = xlsxioread_open(fileName);
+    // Read through a Unicode filesystem path; the ZIP library's narrow path
+    // handling cannot reliably open Korean filenames on Windows.
+    std::ifstream input(std::filesystem::u8path(fileName), std::ios::binary);
+    if (input)
+    {
+        workbookData_.assign(std::istreambuf_iterator<char>(input),
+            std::istreambuf_iterator<char>());
+        if (!input.bad() && !workbookData_.empty())
+            workbook_ = xlsxioread_open_memory(
+                workbookData_.data(), workbookData_.size(), 0);
+    }
     if (workbook_ != nullptr)
     {
         return true;
@@ -37,4 +50,5 @@ void ExcelWorkbookReader::CloseWorkbook()
 
     xlsxioread_close(workbook_);
     workbook_ = nullptr;
+    workbookData_.clear();
 }
