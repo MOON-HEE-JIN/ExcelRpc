@@ -50,21 +50,21 @@ namespace BaseStub
 				DO_ERROR_RESULT(pTarget, ret, type);
 			return ret;
 		}
-		public abstract int DO_GAME_AOI_IN_PLAYER(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_AOI_IN_PLAYERS(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_AOI_IN_PLAYERS_MOVE(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_AOI_OUT_PLAYER(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_AOI_OUT_PLAYERS(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_CHANGEINGZONE(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_CHANGEZONE(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_CONNECTINFO(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_LOOPBACK(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_MOVESTART(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_MOVESTOP(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_OTHERMOVESTART(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_GAME_TELEPORT(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_OBSERVER_CONNET_OBSERVER(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);
-		public abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);
+	protected abstract int DO_GAME_AOI_IN_PLAYER(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_AOI_IN_PLAYERS(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_AOI_IN_PLAYERS_MOVE(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_AOI_OUT_PLAYER(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_AOI_OUT_PLAYERS(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_CHANGEINGZONE(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_CHANGEZONE(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_CONNECTINFO(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_LOOPBACK(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_MOVESTART(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_MOVESTOP(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_OTHERMOVESTART(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_GAME_TELEPORT(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_OBSERVER_CONNET_OBSERVER(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);
+	protected abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);
 	}
 }
