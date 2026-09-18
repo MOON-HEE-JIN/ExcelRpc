@@ -551,11 +551,11 @@ bool CSharpRpcGenerator::WriteClientToServerStub(const char* fileName)
 		if (separator != std::string::npos)
 			functionName.replace(separator, 2, "_");
 		
-		fprintf(fp, "\t\tpublic abstract int DO_%s(TObject pTarget, Span<byte> pReqPacket);\n"
+		fprintf(fp, "\t\tprivate abstract int DO_%s(TObject pTarget, Span<byte> pReqPacket);\n"
 			, functionName.c_str());
 	}
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);\n");
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);\n");
+	fprintf(fp, "\t\tprivate abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);\n");
+	fprintf(fp, "\t\tprivate abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);\n");
 
 
 
@@ -659,11 +659,11 @@ bool CSharpRpcGenerator::WriteServerToClientStub(const char* fileName)
 		if (separator != std::string::npos)
 			functionName.replace(separator, 2, "_");
 		
-		fprintf(fp, "\t\tpublic abstract int DO_%s(TObject pTarget, Span<byte> pReqPacket);\n"
+		fprintf(fp, "\t\tprivate abstract int DO_%s(TObject pTarget, Span<byte> pReqPacket);\n"
 			, functionName.c_str());
 	}
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);\n");
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);\n");
+	fprintf(fp, "\t\tprivate abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);\n");
+	fprintf(fp, "\t\tprivate abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);\n");
 
 	fprintf(fp, "\t}\n");
 
