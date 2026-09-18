@@ -1,4 +1,4 @@
-#include "CSharpRpcGenerator.h"
+﻿#include "CSharpRpcGenerator.h"
 #include "RpcSchemaManager.h"
 
 #include <cstdio>
@@ -50,19 +50,22 @@ bool CSharpRpcGenerator::WriteStructures(const char* fileName)
 		std::perror("Failed to open output file");
 		return false;
 	}
-
-	fprintf(fp, "namespace %s.%s\n", "STRUCT_DEF", solutionFolderName_);
+	fprintf(fp, "using ProjectDefineStruct;\n\n");
+	fprintf(fp, "namespace %s\n", solutionName_);
 	fprintf(fp, "{\n");
-
+	
 	for (const std::string& structureName : g_rpcSchemaManager.orderedStructureNames)
 	{
 		const auto stIter = g_rpcSchemaManager.structures.find(structureName);
 		if (stIter == g_rpcSchemaManager.structures.end())
 			continue;
 
+		if (g_rpcSchemaManager.projectDefinedStructures.find(stIter->first) != g_rpcSchemaManager.projectDefinedStructures.end())
+			continue;
+
 		fprintf(fp, "\tpublic struct %s\n", stIter->first.c_str());
 		fprintf(fp, "\t{\n");
-		fprintf(fp, "\t\t public %s(){}\n", stIter->first.c_str());
+
 		std::list<FieldDefinition>::iterator list_iter = stIter->second.begin();
 		for (list_iter; list_iter != stIter->second.end(); list_iter++)
 		{
@@ -75,7 +78,7 @@ bool CSharpRpcGenerator::WriteStructures(const char* fileName)
 				dataType = list_iter->typeName;
 
 			if (list_iter->kind == FieldKind::Array || list_iter->kind == FieldKind::StructureArray)
-				fprintf(fp, "\t\tpublic %s\t\t[]%s = new %s[%d];\n", dataType.c_str(), list_iter->variableName.c_str(), dataType.c_str(), list_iter->arraySize);
+				fprintf(fp, "\t\tpublic %s\t\t[]%s; //Size::%d\n", dataType.c_str(), list_iter->variableName.c_str(), list_iter->arraySize);
 			else
 				fprintf(fp, "\t\tpublic %s\t\t%s;\n", dataType.c_str(), list_iter->variableName.c_str());
 		}
@@ -93,7 +96,7 @@ bool CSharpRpcGenerator::WriteStructures(const char* fileName)
 
 		fprintf(fp, "\tpublic struct %s\n", structureIterator->first.c_str());
 		fprintf(fp, "\t{\n");
-		fprintf(fp, "\t\tpublic %s(){}\n", structureIterator->first.c_str());
+
 		std::list<FieldDefinition>::iterator list_iter = structureIterator->second.begin();
 		for (list_iter; list_iter != structureIterator->second.end(); list_iter++)
 		{
@@ -106,7 +109,7 @@ bool CSharpRpcGenerator::WriteStructures(const char* fileName)
 				dataType = list_iter->typeName;
 
 			if (list_iter->kind == FieldKind::Array || list_iter->kind == FieldKind::StructureArray)
-				fprintf(fp, "\t\tpublic %s\t\t[]%s = new %s[%d];\n", dataType.c_str(), list_iter->variableName.c_str(), dataType.c_str(), list_iter->arraySize);
+				fprintf(fp, "\t\tpublic %s\t\t[]%s; //Size::%d\n", dataType.c_str(), list_iter->variableName.c_str(), list_iter->arraySize);
 			else
 				fprintf(fp, "\t\tpublic %s\t\t%s;\n", dataType.c_str(), list_iter->variableName.c_str());
 		}
@@ -131,7 +134,7 @@ bool CSharpRpcGenerator::WriteProcedureEnums(const char* fileName)
 		std::perror("Failed to open output file");
 		return false;
 	}
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s\n", solutionName_);
 	fprintf(fp, "{\n");
 
 	EnumMap::iterator iter = g_rpcSchemaManager.procedureEnums.begin();
@@ -172,7 +175,7 @@ bool CSharpRpcGenerator::WriteEnums(const char* fileName)
 		std::perror("Failed to open output file");
 		return false;
 	}
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s\n", solutionName_);
 	fprintf(fp, "{\n");
 
 	EnumMap::iterator iter = g_rpcSchemaManager.enums.begin();
@@ -213,11 +216,12 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 		return false;
 	}
 
+	fprintf(fp, "using ProjectDefineStruct;\n");
 	fprintf(fp, "using System.Buffers.Binary;\n");
 	fprintf(fp, "using System.Text;\n");
-	fprintf(fp, "using STRUCT_DEF.%s;\n", solutionFolderName_);
+	fprintf(fp, "using %s;\n", solutionName_);
 	fprintf(fp, "\n");
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s\n", solutionName_);
 	fprintf(fp, "{\n");
 
 	{
@@ -284,7 +288,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 					{
 						if (list_iter->typeName == "net_string")
 						{
-							functionBody += "\t\t\tEncoding.UTF8.GetBytes(_value.msg, dst.Slice(offset, _value.length));offset += _value.length;\n";
+							functionBody += "\t\t\tEncoding.UTF8.GetBytes(_value." + list_iter->variableName + ", dst.Slice(offset, _value.length));offset += _value.length;\n";
 						}
 						else if (littleEndianWriters_.find(dataType) != littleEndianWriters_.end())
 						{
@@ -362,7 +366,9 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 					std::string serializationExpression;
 					if (list_iter->kind == FieldKind::Array || list_iter->kind == FieldKind::StructureArray)
 					{
+						std::string valuealloc = "\t\t\t_value." + list_iter->variableName + " = new " + list_iter->typeName + "[" + std::to_string(list_iter->arraySize) + "];\n";
 						std::string loopHeader = "\t\t\tfor(int i = 0; i < " + std::to_string(list_iter->arraySize);
+						functionBody += valuealloc;
 						loopHeader += +"; i++)\n\t\t\t{\n";
 
 						if (littleEndianReaders_.find(dataType) != littleEndianReaders_.end())
@@ -400,7 +406,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 					{
 						if (list_iter->typeName == "net_string")
 						{
-							functionBody += "\t\t\t_value.msg = Encoding.UTF8.GetString(src.Slice(offset, _value.length));offset += _value.length;\n";
+							functionBody += "\t\t\t_value."+ list_iter->variableName +" = Encoding.UTF8.GetString(src.Slice(offset, _value.length));offset += _value.length;\n";
 						}
 						else if (littleEndianReaders_.find(dataType) != littleEndianReaders_.end())
 						{
@@ -465,20 +471,22 @@ bool CSharpRpcGenerator::WriteClientToServerStub(const char* fileName)
 	}
 	std::string registerFunctionName = "InitRegisterFuncDictionary";
 
-	fprintf(fp, "using System.Buffers.Binary;\n");
-	fprintf(fp, "using System.Text;\n");
-	fprintf(fp, "using %s.Models;", solutionName_);
+	fprintf(fp, "using %s;", solutionName_);
 	fprintf(fp, "\n");
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s\n", solutionName_);
 	fprintf(fp, "{\n");
 
-	fprintf(fp, "\tpublic abstract class Stub<Object>\n");
+	fprintf(fp, "\tpublic abstract class Stub<TObject>\n");
 	fprintf(fp, "\t{\n");
 
 	EnumMap::iterator enum_iter = g_rpcSchemaManager.procedureEnums.begin();
+	
+	fprintf(fp, "\t\tpublic Stub(){%s();}\n", registerFunctionName.c_str());
+	fprintf(fp, "\t\tpublic delegate int CallBack(TObject obj, Span<byte> buffer);\n");
+
 	for (enum_iter; enum_iter != g_rpcSchemaManager.procedureEnums.end(); enum_iter++)
 	{
-		fprintf(fp, "\t\tpublic readonly Dictionary<int, Func<Object, byte[], int>> m_Dic%sProc = new();\n"
+		fprintf(fp, "\t\tpublic readonly Dictionary<int, CallBack> m_Dic%sProc = new();\n"
 			, enum_iter->first.c_str());
 	}
 
@@ -515,13 +523,10 @@ bool CSharpRpcGenerator::WriteClientToServerStub(const char* fileName)
 	}
 	fprintf(fp, "\t\t}\n");
 
-
-	fprintf(fp, "\t\tpublic Stub(){%s();}\n", registerFunctionName.c_str());
-
 	enum_iter = g_rpcSchemaManager.procedureEnums.begin();
 	for (enum_iter; enum_iter != g_rpcSchemaManager.procedureEnums.end(); enum_iter++)
 	{
-		fprintf(fp, "\t\tpublic virtual int DO_%s_Proc(int type, Object pTarget, byte[] cPacket)\n"
+		fprintf(fp, "\t\tpublic int DO_%s_Proc(int type, TObject pTarget, Span<byte> cPacket)\n"
 			, enum_iter->first.c_str());
 		fprintf(fp, "\t\t{\n");
 		
@@ -546,11 +551,11 @@ bool CSharpRpcGenerator::WriteClientToServerStub(const char* fileName)
 		if (separator != std::string::npos)
 			functionName.replace(separator, 2, "_");
 		
-		fprintf(fp, "\t\tpublic abstract int DO_%s(Object pTarget, byte[] pReqPacket);\n"
+		fprintf(fp, "\t\tpublic abstract int DO_%s(TObject pTarget, Span<byte> pReqPacket);\n"
 			, functionName.c_str());
 	}
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_PACKET(Object pTarget, byte[] pReqPacket);\n");
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_RESULT(Object pTarget, int ret, int type);\n");
+	fprintf(fp, "\t\tpublic abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);\n");
+	fprintf(fp, "\t\tpublic abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);\n");
 
 
 
@@ -575,20 +580,21 @@ bool CSharpRpcGenerator::WriteServerToClientStub(const char* fileName)
 	}
 	std::string registerFunctionName = "InitRegisterFuncDictionary";
 
-	fprintf(fp, "using System.Buffers.Binary;\n");
-	fprintf(fp, "using System.Text;\n");
-	fprintf(fp, "using %s.Models;", solutionName_);
+	fprintf(fp, "using %s;", solutionName_);
 	fprintf(fp, "\n");
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s\n", solutionName_);
 	fprintf(fp, "{\n");
 
-	fprintf(fp, "\tpublic abstract class Stub<Object>\n");
+	fprintf(fp, "\tpublic abstract class Stub<TObject>\n");
 	fprintf(fp, "\t{\n");
+
+	fprintf(fp, "\t\tpublic Stub(){%s();}\n", registerFunctionName.c_str());
+	fprintf(fp, "\t\tpublic delegate int CallBack(TObject obj, Span<byte> buffer);\n");
 
 	EnumMap::iterator enum_iter = g_rpcSchemaManager.procedureEnums.begin();
 	for (enum_iter; enum_iter != g_rpcSchemaManager.procedureEnums.end(); enum_iter++)
 	{
-		fprintf(fp, "\t\tpublic readonly Dictionary<int, Func<Object, byte[], int>> m_Dic%sProc = new();\n"
+		fprintf(fp, "\t\tpublic readonly Dictionary<int, CallBack> m_Dic%sProc = new();\n"
 			, enum_iter->first.c_str());
 	}
 
@@ -625,13 +631,10 @@ bool CSharpRpcGenerator::WriteServerToClientStub(const char* fileName)
 	}
 	fprintf(fp, "\t\t}\n");
 
-
-	fprintf(fp, "\t\tpublic Stub(){%s();}\n", registerFunctionName.c_str());
-
 	enum_iter = g_rpcSchemaManager.procedureEnums.begin();
 	for (enum_iter; enum_iter != g_rpcSchemaManager.procedureEnums.end(); enum_iter++)
 	{
-		fprintf(fp, "\t\tpublic virtual int DO_%s_Proc(int type, Object pTarget, byte[] cPacket)\n"
+		fprintf(fp, "\t\tpublic int DO_%s_Proc(int type, TObject pTarget, Span<byte> cPacket)\n"
 			, enum_iter->first.c_str());
 		fprintf(fp, "\t\t{\n");
 
@@ -656,11 +659,11 @@ bool CSharpRpcGenerator::WriteServerToClientStub(const char* fileName)
 		if (separator != std::string::npos)
 			functionName.replace(separator, 2, "_");
 		
-		fprintf(fp, "\t\tpublic abstract int DO_%s(Object pTarget, byte[] pReqPacket);\n"
+		fprintf(fp, "\t\tpublic abstract int DO_%s(TObject pTarget, Span<byte> pReqPacket);\n"
 			, functionName.c_str());
 	}
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_PACKET(Object pTarget, byte[] pReqPacket);\n");
-	fprintf(fp, "\t\tpublic abstract int DO_ERROR_RESULT(Object pTarget, int ret, int type);\n");
+	fprintf(fp, "\t\tpublic abstract int DO_ERROR_PACKET(TObject pTarget, Span<byte> pReqPacket);\n");
+	fprintf(fp, "\t\tpublic abstract int DO_ERROR_RESULT(TObject pTarget, int ret, int type);\n");
 
 	fprintf(fp, "\t}\n");
 

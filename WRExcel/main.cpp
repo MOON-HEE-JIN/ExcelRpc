@@ -1,4 +1,4 @@
-#include "CSharpRpcGenerator.h"
+﻿#include "CSharpRpcGenerator.h"
 #include "MsvcRpcGenerator.h"
 #include "RpcSchemaManager.h"
 
@@ -17,7 +17,7 @@ int main(int argumentCount, char* arguments[])
     const std::string workbookFileName =
         argumentCount > 1 ? arguments[1] : kDefaultWorkbook;
     const std::string generatorTarget =
-        argumentCount > 2 ? arguments[2] : kMsvcTarget;
+        argumentCount > 2 ? arguments[2] : kCSharpTarget;
 
     if (!g_rpcSchemaManager.LoadSchema(workbookFileName))
     {

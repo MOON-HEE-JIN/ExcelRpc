@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <map>
 #include <string>
@@ -17,8 +17,7 @@ public:
     bool WriteServerToClientStub(const char* fileName = "CLIENT_STUB");
 
 private:
-    const char* solutionName_ = "CSHAP_SERVER";
-    const char* solutionFolderName_ = "Models";
+    const char* solutionName_ = "BaseStub";
     const char* outputDirectory_ = "CSHAP_FILE\\";
 
     std::map<std::string, std::string> littleEndianWriters_;
