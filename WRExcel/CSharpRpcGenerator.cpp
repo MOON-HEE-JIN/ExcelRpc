@@ -341,7 +341,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 		fprintf(fp, "\tpublic static class UnSerialization\n");
 		fprintf(fp, "\t{\n");
 
-		std::string functionPrefix = "\t\tpublic static int ReadPacket(ReadOnlySpan<byte> src, ref ";
+		std::string functionPrefix = "\t\tpublic static int ReadPacket(ReadOnlySpan<byte> src, out ";
 
 		StructureMap::iterator struct_iter = g_rpcSchemaManager.structures.begin();
 		for (struct_iter; struct_iter != g_rpcSchemaManager.structures.end(); struct_iter++)
@@ -397,7 +397,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 							}
 							else
 							{
-								serializationExpression = "offset += ReadPacket(src.Slice(offset), ref _value. " + list_iter->variableName + "[i]);\n";
+								serializationExpression = "offset += ReadPacket(src.Slice(offset), out _value. " + list_iter->variableName + "[i]);\n";
 								functionBody += loopHeader + "\t\t\t\t" + serializationExpression + "\t\t\t}\n";
 							}
 						}
@@ -434,7 +434,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 							}
 							else
 							{
-								serializationExpression = "offset += ReadPacket(src.Slice(offset), ref _value." + list_iter->variableName;
+								serializationExpression = "offset += ReadPacket(src.Slice(offset), out _value." + list_iter->variableName;
 								functionBody += "\t\t\t" + serializationExpression + ");\n";
 							}
 						}
