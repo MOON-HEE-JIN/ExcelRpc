@@ -1,6 +1,7 @@
 #pragma once
 
 #include "xlsxio_read.h"
+#include <vector>
 
 class ExcelWorkbookReader
 {
@@ -16,4 +17,5 @@ protected:
     void CloseWorkbook();
 
     xlsxioreader workbook_ = nullptr;
+    std::vector<char> workbookData_;
 };

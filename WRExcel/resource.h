@@ -1,0 +1,8 @@
+#pragma once
+#define IDD_WORKBOOK 101
+#define IDC_WORKBOOK_PATH 1001
+#define IDC_SELECT_FILE 1002
+#define IDC_READ 1003
+#define IDC_MSVC 1004
+#define IDC_CSHARP 1005
+#define IDC_STATUS 1006
