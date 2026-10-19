@@ -1,54 +1,35 @@
 using System.Buffers.Binary;
 using System.Text;
-using CSHAP_SERVER.Models;
-namespace CSHAP_SERVER.Models
+using PacketEnums.Models;
+
+namespace CTS.Models
 {
 	public abstract class Stub<Object>
 	{
-		public readonly Dictionary<int, Func<Object, byte[], int>> m_DicGAMEProc = new();
-		public readonly Dictionary<int, Func<Object, byte[], int>> m_DicOBSERVERProc = new();
+		public readonly Dictionary<int, Func<Object, byte[], int>> m_DicCHATProc = new();
 		public void InitRegisterFuncDictionary()
 		{
-			m_DicGAMEProc[(int)GAME.LOOPBACK] = DO_GAME_LOOPBACK;
-			m_DicGAMEProc[(int)GAME.CHANGEZONE] = DO_GAME_CHANGEZONE;
-			m_DicGAMEProc[(int)GAME.MOVESTART] = DO_GAME_MOVESTART;
-			m_DicGAMEProc[(int)GAME.MOVESTOP] = DO_GAME_MOVESTOP;
-			m_DicGAMEProc[(int)GAME.TELEPORT] = DO_GAME_TELEPORT;
-			m_DicOBSERVERProc[(int)OBSERVER.CONNET_OBSERVER] = DO_OBSERVER_CONNET_OBSERVER;
+			m_DicCHATProc[(int)CHAT.NORMAL] = DO_CHAT_NORMAL;
+			m_DicCHATProc[(int)CHAT.WHISPER] = DO_CHAT_WHISPER;
+			m_DicCHATProc[(int)CHAT.GROUP] = DO_CHAT_GROUP;
 		}
 		public Stub(){InitRegisterFuncDictionary();}
-		public virtual int DO_GAME_Proc(int type, Object pTarget, byte[] cPacket)
+		public virtual int DO_CHAT_Proc(int type, Object pTarget, byte[] cPacket)
 		{
 			int ret = 0;
-			if(!m_DicGAMEProc.ContainsKey(type))
+			if(!m_DicCHATProc.ContainsKey(type))
 			{
 				ret = DO_ERROR_PACKET(pTarget, cPacket);
 				return ret;
 			}
-			ret = m_DicGAMEProc[type](pTarget, cPacket);
+			ret = m_DicCHATProc[type](pTarget, cPacket);
 			if(ret != 0)
 				DO_ERROR_RESULT(pTarget, ret, type);
 			return ret;
 		}
-		public virtual int DO_OBSERVER_Proc(int type, Object pTarget, byte[] cPacket)
-		{
-			int ret = 0;
-			if(!m_DicOBSERVERProc.ContainsKey(type))
-			{
-				ret = DO_ERROR_PACKET(pTarget, cPacket);
-				return ret;
-			}
-			ret = m_DicOBSERVERProc[type](pTarget, cPacket);
-			if(ret != 0)
-				DO_ERROR_RESULT(pTarget, ret, type);
-			return ret;
-		}
-		public abstract int DO_GAME_CHANGEZONE(Object pTarget, byte[] pReqPacket);
-		public abstract int DO_GAME_LOOPBACK(Object pTarget, byte[] pReqPacket);
-		public abstract int DO_GAME_MOVESTART(Object pTarget, byte[] pReqPacket);
-		public abstract int DO_GAME_MOVESTOP(Object pTarget, byte[] pReqPacket);
-		public abstract int DO_GAME_TELEPORT(Object pTarget, byte[] pReqPacket);
-		public abstract int DO_OBSERVER_CONNET_OBSERVER(Object pTarget, byte[] pReqPacket);
+		public abstract int DO_CHAT_GROUP(Object pTarget, byte[] pReqPacket);
+		public abstract int DO_CHAT_NORMAL(Object pTarget, byte[] pReqPacket);
+		public abstract int DO_CHAT_WHISPER(Object pTarget, byte[] pReqPacket);
 		public abstract int DO_ERROR_PACKET(Object pTarget, byte[] pReqPacket);
 		public abstract int DO_ERROR_RESULT(Object pTarget, int ret, int type);
 	}

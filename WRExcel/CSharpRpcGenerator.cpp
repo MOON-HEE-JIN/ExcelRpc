@@ -1,4 +1,4 @@
-#include "CSharpRpcGenerator.h"
+﻿#include "CSharpRpcGenerator.h"
 #include "RpcSchemaManager.h"
 
 #include <cstdio>
@@ -62,7 +62,6 @@ bool CSharpRpcGenerator::WriteStructures(const char* fileName)
 
 		fprintf(fp, "\tpublic struct %s\n", stIter->first.c_str());
 		fprintf(fp, "\t{\n");
-		fprintf(fp, "\t\t public %s(){}\n", stIter->first.c_str());
 		std::list<FieldDefinition>::iterator list_iter = stIter->second.begin();
 		for (list_iter; list_iter != stIter->second.end(); list_iter++)
 		{
@@ -131,7 +130,7 @@ bool CSharpRpcGenerator::WriteProcedureEnums(const char* fileName)
 		std::perror("Failed to open output file");
 		return false;
 	}
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s.%s\n", "PacketEnums", solutionFolderName_);
 	fprintf(fp, "{\n");
 
 	EnumMap::iterator iter = g_rpcSchemaManager.procedureEnums.begin();
@@ -172,7 +171,7 @@ bool CSharpRpcGenerator::WriteEnums(const char* fileName)
 		std::perror("Failed to open output file");
 		return false;
 	}
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s.%s\n", "EnumsDef", solutionFolderName_);
 	fprintf(fp, "{\n");
 
 	EnumMap::iterator iter = g_rpcSchemaManager.enums.begin();
@@ -217,7 +216,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 	fprintf(fp, "using System.Text;\n");
 	fprintf(fp, "using STRUCT_DEF.%s;\n", solutionFolderName_);
 	fprintf(fp, "\n");
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s.%s\n", "Serialization", solutionFolderName_);
 	fprintf(fp, "{\n");
 
 	{
@@ -337,7 +336,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 		fprintf(fp, "\tpublic static class UnSerialization\n");
 		fprintf(fp, "\t{\n");
 
-		std::string functionPrefix = "\t\tpublic static int ReadPacket(ReadOnlySpan<byte> src, ref ";
+		std::string functionPrefix = "\t\tpublic static int ReadPacket(ReadOnlySpan<byte> src, out ";
 
 		StructureMap::iterator struct_iter = g_rpcSchemaManager.structures.begin();
 		for (struct_iter; struct_iter != g_rpcSchemaManager.structures.end(); struct_iter++)
@@ -391,7 +390,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 							}
 							else
 							{
-								serializationExpression = "offset += ReadPacket(src.Slice(offset), ref _value. " + list_iter->variableName + "[i]);\n";
+								serializationExpression = "offset += ReadPacket(src.Slice(offset), out _value. " + list_iter->variableName + "[i]);\n";
 								functionBody += loopHeader + "\t\t\t\t" + serializationExpression + "\t\t\t}\n";
 							}
 						}
@@ -428,7 +427,7 @@ bool CSharpRpcGenerator::WriteSerialization(const char* fileName)
 							}
 							else
 							{
-								serializationExpression = "offset += ReadPacket(src.Slice(offset), ref _value." + list_iter->variableName;
+								serializationExpression = "offset += ReadPacket(src.Slice(offset), out _value." + list_iter->variableName;
 								functionBody += "\t\t\t" + serializationExpression + ");\n";
 							}
 						}
@@ -467,9 +466,9 @@ bool CSharpRpcGenerator::WriteClientToServerStub(const char* fileName)
 
 	fprintf(fp, "using System.Buffers.Binary;\n");
 	fprintf(fp, "using System.Text;\n");
-	fprintf(fp, "using %s.Models;", solutionName_);
+	fprintf(fp, "using %s.%s;\n", "PacketEnums", solutionFolderName_);
 	fprintf(fp, "\n");
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s.%s\n", "CTS", solutionFolderName_);
 	fprintf(fp, "{\n");
 
 	fprintf(fp, "\tpublic abstract class Stub<Object>\n");
@@ -577,9 +576,9 @@ bool CSharpRpcGenerator::WriteServerToClientStub(const char* fileName)
 
 	fprintf(fp, "using System.Buffers.Binary;\n");
 	fprintf(fp, "using System.Text;\n");
-	fprintf(fp, "using %s.Models;", solutionName_);
+	fprintf(fp, "using %s.%s;\n", "PacketEnums", solutionFolderName_);
 	fprintf(fp, "\n");
-	fprintf(fp, "namespace %s.%s\n", solutionName_, solutionFolderName_);
+	fprintf(fp, "namespace %s.%s\n", "STC", solutionFolderName_);
 	fprintf(fp, "{\n");
 
 	fprintf(fp, "\tpublic abstract class Stub<Object>\n");
